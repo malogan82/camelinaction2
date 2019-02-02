@@ -1,6 +1,8 @@
 package camelinaction;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -12,7 +14,11 @@ public class OrderToCsvProcessorTest extends CamelTestSupport {
     public void testOrderToCsvProcessor() throws Exception {
         // this is the inhouse format we want to transform to CSV
         String inhouse = "0000004444000001212320091208  1217@1478@2132";
-        template.sendBodyAndHeader("direct:start", inhouse, "Date", "20091208");
+        //template.sendBodyAndHeader("direct:start", inhouse, "Date", "20091208");
+        Map<String,Object> headers = new HashMap<String,Object>();
+        headers.put("Date", "20091208");
+        headers.put("Endpoint", "file://target/orders/received");
+        template.sendBodyAndHeaders("direct:start", inhouse, headers);
 
         File file = new File("target/orders/received/report-20091208.csv");
         assertTrue("File should exist", file.exists());
@@ -31,7 +37,8 @@ public class OrderToCsvProcessorTest extends CamelTestSupport {
                     // format inhouse to csv using a processor
                     .process(new OrderToCsvProcessor())
                     // and save it to a file
-                    .to("file://target/orders/received?fileName=report-${header.Date}.csv");
+                    //.to("file://target/orders/received"?fileName=report-${header.Date}.csv");
+                    .toD("${header.Endpoint}?fileName=report-${header.Date}.csv");
             }
         };
     }

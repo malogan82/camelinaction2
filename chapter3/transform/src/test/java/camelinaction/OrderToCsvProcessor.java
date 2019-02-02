@@ -10,6 +10,8 @@ import org.apache.camel.Processor;
 public class OrderToCsvProcessor implements Processor {
 
     public void process(Exchange exchange) throws Exception {
+    	//System.out.println("##########exchange.getOut(): "+exchange.getOut());
+    	System.out.println("##########exchange.hasOut(): "+exchange.hasOut());
         String custom = exchange.getIn().getBody(String.class);
 
         String id = custom.substring(0, 10);
